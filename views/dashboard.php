@@ -2,8 +2,7 @@
 $cards = [
     ['Total Kelas', $totalKelas, '▤', 'kelas'],
     ['Total Siswa', $totalSiswa, '☰', 'siswa'],
-    ['Ujian Standar', $soalStandar, '✎', 'soal'],
-    ['Ujian Aktif', $ujianAktif, '▶', 'soal'],
+    ['Ujian Aktif', $ujianAktif, '✎', 'soal'],
     ['Sedang Berlangsung', $berlangsung, '⏱', 'nilai'],
 ];
 if (empty($isSuper)) {

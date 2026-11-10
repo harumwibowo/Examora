@@ -37,9 +37,7 @@ final class AdminController
         }
 
         [$aksesSql, $aksesParams] = soal_akses_sql('s');
-        $soalStandar = (int) DB::scalar("SELECT COUNT(*) FROM soal s WHERE s.jenis_ujian = 'Standar' AND " . $aksesSql, $aksesParams);
         $ujianAktif = (int) DB::scalar("SELECT COUNT(*) FROM soal s WHERE s.status = 'Aktif' AND " . $aksesSql, $aksesParams);
-
         $berlangsung = (int) DB::scalar(
             "SELECT COUNT(*) FROM riwayat_ujian ru JOIN soal s ON s.id = ru.id_soal
              WHERE ru.status = 'Berlangsung' AND " . $aksesSql,
@@ -63,7 +61,7 @@ final class AdminController
         );
 
         View::render('dashboard', compact(
-            'totalKelas', 'totalSiswa', 'soalStandar', 'ujianAktif',
+            'totalKelas', 'totalSiswa', 'ujianAktif',
             'berlangsung', 'menunggu', 'resetRequest', 'recent', 'isSuper'
         ));
     }
