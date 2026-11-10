@@ -26,7 +26,7 @@ $labelTipe = [
           <option value="0">— pilih ujian —</option>
           <?php foreach ($daftar as $s): ?>
             <option value="<?= (int) $s['id'] ?>" <?= (int) $idSoal === (int) $s['id'] ? 'selected' : '' ?>>
-              <?= e($s['nama_soal']) ?> — <?= e($s['jenis_ujian']) ?>
+              <?= e($s['nama_soal']) ?>
             </option>
           <?php endforeach; ?>
         </select>

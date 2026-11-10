@@ -24,7 +24,7 @@ $minPengerjaan = max(0, min($menit, (int) ($soal['min_pengerjaan'] ?? 0)));
             <tr><th style="width:190px">Mata pelajaran</th><td><?= e($soal['mapel'] ?: 'Umum') ?></td></tr>
             <tr><th>Target peserta</th><td><?= e(agama_label($soal['agama_target'] ?? '')) ?><?php if (!empty($soal['agama_target'])): ?> <span class="text-muted">· hanya siswa beragama ini</span><?php endif; ?></td></tr>
             <tr><th>Guru</th><td><?= e($soal['guru_nama']) ?></td></tr>
-            <tr><th>Jenis ujian</th><td><?= e($soal['jenis_ujian']) ?> · soal PDF Google Drive</td></tr>
+            <tr><th>Jenis soal</th><td>PDF Google Drive</td></tr>
             <tr><th>Jumlah soal</th><td><?= e(komposisi_label($soal)) ?> (total <?= $total ?>)</td></tr>
             <tr><th>Durasi</th><td><?= $menit ?> menit</td></tr>
             <?php if ($minPengerjaan > 0): ?>

@@ -13,11 +13,11 @@
   <div class="table-wrap">
     <table class="table table-hover align-middle mb-0">
       <thead>
-        <tr><th style="width:56px">No</th><th>Ujian</th><th>Jenis</th><th>Token</th><th>Soal</th><th>Target</th><th>Durasi</th><th>Status</th><th class="text-end">Aksi</th></tr>
+        <tr><th style="width:56px">No</th><th>Ujian</th><th>Token</th><th>Soal</th><th>Target</th><th>Durasi</th><th>Status</th><th class="text-end">Aksi</th></tr>
       </thead>
       <tbody>
       <?php if (!$rows): ?>
-        <tr><td colspan="9" class="text-center text-muted py-5">Belum ada ujian. Klik <strong>+ Ujian Baru</strong> untuk memulai.</td></tr>
+        <tr><td colspan="8" class="text-center text-muted py-5">Belum ada ujian. Klik <strong>+ Ujian Baru</strong> untuk memulai.</td></tr>
       <?php endif; ?>
       <?php foreach ($rows as $i => $s):
           $total = komposisi_total($s);
@@ -34,7 +34,6 @@
               <?php endif; ?>
             </div>
           </td>
-          <td><span class="badge badge-soft"><?= e($s['jenis_ujian']) ?></span></td>
           <td>
             <span role="button" tabindex="0" class="token-copy" data-copy="<?= e($s['kode_soal']) ?>"
                   data-copy-title="Token disalin" title="Klik untuk menyalin token"

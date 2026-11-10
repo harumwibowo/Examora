@@ -32,7 +32,7 @@ $poinMaks = $butirAktif ? (float) $butirAktif['poin_maks'] : 0;
             <a class="card text-reset h-100" href="<?= e(url('koreksi_massal', ['id_soal' => $s['id']])) ?>">
               <div class="card-body py-2">
                 <div class="fw-semibold" style="font-size:.9rem"><?= e($s['nama_soal']) ?></div>
-                <div class="text-muted" style="font-size:.74rem"><?= e($s['jenis_ujian']) ?> · <?= e($s['mapel'] ?: 'Tanpa mapel') ?></div>
+                <div class="text-muted" style="font-size:.74rem"><?= e($s['mapel'] ?: 'Tanpa mapel') ?></div>
               </div>
             </a>
           </div>

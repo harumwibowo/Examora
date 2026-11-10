@@ -61,10 +61,10 @@ if (empty($isSuper)) {
       </div>
       <div class="table-wrap">
         <table class="table table-hover align-middle mb-0">
-          <thead><tr><th>Ujian</th><th>Jenis</th><th>Token</th><th>Status</th><th class="text-end">Peserta</th></tr></thead>
+          <thead><tr><th>Ujian</th><th>Token</th><th>Status</th><th class="text-end">Peserta</th></tr></thead>
           <tbody>
           <?php if (!$recent): ?>
-            <tr><td colspan="5" class="text-center text-muted py-4">Belum ada ujian. Mulai dengan membuat ujian baru.</td></tr>
+            <tr><td colspan="4" class="text-center text-muted py-4">Belum ada ujian. Mulai dengan membuat ujian baru.</td></tr>
           <?php endif; ?>
           <?php foreach ($recent as $s): ?>
             <tr>
@@ -72,7 +72,6 @@ if (empty($isSuper)) {
                 <a class="fw-semibold" href="<?= e(url('kunci', ['id' => $s['id']])) ?>"><?= e($s['nama_soal']) ?></a>
                 <div class="text-muted" style="font-size:.76rem"><?= e($s['mapel'] ?: 'Tanpa mata pelajaran') ?> · <?= e($s['guru_nama']) ?></div>
               </td>
-              <td><span class="badge badge-soft"><?= e($s['jenis_ujian']) ?></span></td>
               <td><code><?= e($s['kode_soal']) ?></code></td>
               <td><?= status_badge($s['status']) ?></td>
               <td class="text-end"><?= (int) $s['peserta'] ?></td>

@@ -19,7 +19,7 @@ foreach ($komposisi as $kb) {
 <div class="page-head">
   <div>
     <h1>Kunci Jawaban</h1>
-    <p><?= e($soal['nama_soal']) ?> · <?= e($soal['jenis_ujian']) ?> · token <code><?= e($soal['kode_soal']) ?></code></p>
+    <p><?= e($soal['nama_soal']) ?> · token <code><?= e($soal['kode_soal']) ?></code></p>
   </div>
   <div class="actions">
     <a class="btn btn-ghost" href="<?= e(url('soal_form', ['id' => $soal['id']])) ?>">Ubah Setelan</a>

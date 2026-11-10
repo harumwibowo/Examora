@@ -13,10 +13,10 @@ $kkm = (float) setting('kkm', '75');
   <div class="card">
     <div class="table-wrap">
       <table class="table table-hover align-middle mb-0">
-        <thead><tr><th style="width:56px">No</th><th>Ujian</th><th>Jenis</th><th>Token</th><th>Status</th><th class="text-end">Peserta selesai</th><th class="text-end">Aksi</th></tr></thead>
+        <thead><tr><th style="width:56px">No</th><th>Ujian</th><th>Token</th><th>Status</th><th class="text-end">Peserta selesai</th><th class="text-end">Aksi</th></tr></thead>
         <tbody>
         <?php if (!$daftar): ?>
-          <tr><td colspan="7" class="text-center text-muted py-5">Belum ada ujian. <a href="<?= e(url('soal_form')) ?>">Buat ujian terlebih dahulu</a>.</td></tr>
+          <tr><td colspan="6" class="text-center text-muted py-5">Belum ada ujian. <a href="<?= e(url('soal_form')) ?>">Buat ujian terlebih dahulu</a>.</td></tr>
         <?php endif; ?>
         <?php foreach ($daftar as $i => $s): ?>
           <tr>
@@ -25,7 +25,6 @@ $kkm = (float) setting('kkm', '75');
               <div class="fw-semibold"><?= e($s['nama_soal']) ?></div>
               <div class="text-muted" style="font-size:.76rem"><?= e($s['mapel'] ?: 'Tanpa mapel') ?> · <?= e($s['guru_nama']) ?></div>
             </td>
-            <td><span class="badge badge-soft"><?= e($s['jenis_ujian']) ?></span></td>
             <td><code><?= e($s['kode_soal']) ?></code></td>
             <td><?= status_badge($s['status']) ?></td>
             <td class="text-end">

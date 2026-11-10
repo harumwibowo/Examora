@@ -80,7 +80,7 @@ $selesai = $r['waktu_selesai'] !== null;
     <?php if ($selesai): ?>
       <div class="card mt-3">
         <div class="card-body" style="font-size:.84rem">
-          <div class="d-flex justify-content-between"><span class="text-muted">Jenis ujian</span><span><?= e($r['jenis_ujian']) ?></span></div>
+          <div class="d-flex justify-content-between"><span class="text-muted">Jenis soal</span><span>PDF Google Drive</span></div>
           <div class="d-flex justify-content-between mt-1"><span class="text-muted">Bobot objektif</span><span><?= e(fmt_nilai($r['bobot_pg'], 0)) ?>%</span></div>
           <div class="d-flex justify-content-between mt-1"><span class="text-muted">Bobot esai</span><span><?= e(fmt_nilai($r['bobot_uraian'], 0)) ?>%</span></div>
         </div>
