@@ -1,0 +1,22 @@
+# Konfigurasi lokal hasil installer (berisi app_key & kredensial database)
+/config/config.php
+/install.lock
+
+# Data runtime: log, cache, dan file sesi PHP
+/storage/*
+!/storage/.htaccess
+!/storage/.gitkeep
+!/storage/cache/
+!/storage/logs/
+!/storage/sessions/
+/storage/cache/*
+!/storage/cache/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+
+# Berkas OS / editor
+.DS_Store
+Thumbs.db
+*.log
