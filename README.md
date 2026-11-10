@@ -55,25 +55,60 @@ tanpa aplikasi tambahan di sisi siswa. Siswa cukup membuka tautan ujian di brows
 - Audit log aktivitas penting.
 - Tanpa kode registrasi, tanpa masa berlaku, tanpa pembayaran, tanpa panggilan keluar.
 
+## Tampilan
+
+**Pemilihan peran di halaman depan**
+
+![Halaman depan Examora](docs/screenshots/beranda.png)
+
+**Login guru / admin**
+
+![Login guru dan admin](docs/screenshots/login-guru.png)
+
+**Dashboard superadmin**
+
+![Dashboard superadmin](docs/screenshots/dashboard-admin.png)
+
+**Backup selektif di menu Database**
+
+![Backup selektif](docs/screenshots/backup-selektif.png)
+
+> Screenshot diambil dari instalasi uji dengan data contoh (SMA Negeri 1 Nusantara).
+
 ## Kebutuhan
 
 - PHP **8.2+** (disarankan 8.3) dengan ekstensi: `pdo_mysql`, `openssl`,
   `mbstring`, `json`, `session`.
+- Ekstensi tambahan: `curl` untuk soal PDF Google Drive, `gd` untuk mengubah
+  ukuran logo sekolah (fitur terkait saja yang nonaktif bila tidak ada).
 - MySQL **5.7+** atau MariaDB **10.4+**.
 - Web server Apache/Nginx atau `php -S` untuk pengembangan.
 - Tidak membutuhkan ekstensi `zip` (ekspor XLSX memakai penulis ZIP bawaan).
 
+Panduan lengkap per jenis server (cPanel, VPS Apache, VPS Nginx, izin folder,
+HTTPS, dan troubleshooting) ada di **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
 ## Instalasi
 
-1. Letakkan folder aplikasi di web root, misalnya `htdocs/cbt-bebas`.
-2. Pastikan folder `config/` dapat ditulis oleh user web server.
-3. Buka `http://localhost/cbt-bebas/index.php` di browser.
+1. Unduh repo (`git clone` atau ZIP) dan letakkan folder aplikasi di web root,
+   misalnya `htdocs/cbt-bebas` atau `public_html/examora`.
+2. Pastikan folder `config/`, `storage/`, dan `assets/uploads/` dapat ditulis
+   oleh user web server.
+3. Buka `http://localhost/cbt-bebas/index.php` di browser. Halaman instalasi
+   menampilkan daftar persyaratan server (versi PHP, ekstensi, dan izin folder)
+   sebelum form aktif.
 4. Ikuti wizard instalasi:
-   - koneksi database (database dibuat otomatis bila belum ada),
+   - koneksi database (database dibuat otomatis bila belum ada; bila akun
+     hosting tidak berhak membuat database, buat dulu lewat panel hosting),
    - identitas sekolah,
    - akun superadmin pertama.
 5. Setelah selesai, aplikasi membuat `config/config.php` dan `install.lock`.
 6. Masuk melalui menu **Guru / Admin** menggunakan akun superadmin tadi.
+
+> **Pengguna Nginx:** `.htaccess` tidak dibaca Nginx. Wajib memakai aturan
+> proteksi folder dari [docs/nginx-example.conf](docs/nginx-example.conf),
+> jika tidak `storage/`, `database/`, dan `config/` berisiko diakses langsung.
+> Lihat juga [docs/DEPLOY.md](docs/DEPLOY.md) untuk langkah lengkap.
 
 ### Menjalankan dengan PHP built-in server
 
@@ -158,6 +193,7 @@ examora/
 ├── assets/                # CSS, JS, Bootstrap lokal, upload logo
 ├── config/                # config.php (dibuat installer)
 ├── database/schema.sql    # skema database
+├── docs/                  # panduan deploy & contoh konfigurasi Nginx
 ├── storage/               # log, cache, file sesi (harus dapat ditulis)
 └── views/                 # template PHP
 ```
@@ -169,7 +205,8 @@ examora/
 - Semua form POST memakai token CSRF.
 - Query database memakai prepared statement PDO.
 - Folder `app/`, `config/`, `database/`, `storage/`, dan `views/` diblokir
-  dari akses langsung melalui `.htaccess`.
+  dari akses langsung melalui `.htaccess` (Apache) maupun aturan `deny` pada
+  contoh konfigurasi Nginx di `docs/nginx-example.conf`.
 - Login dibatasi percobaan berulang (rate limit berbasis file).
 - File sesi PHP disimpan di `storage/sessions` (bukan folder sesi bersama
   hosting) agar tidak ikut dibersihkan aplikasi lain. Cookie login siswa
@@ -182,5 +219,7 @@ examora/
 
 ## Lisensi
 
-Aplikasi ini bebas digunakan, dimodifikasi, dan didistribusikan untuk kebutuhan
-sekolah/lembaga. Tidak ada biaya lisensi, registrasi, atau masa kedaluwarsa.
+Dirilis dengan lisensi **MIT** — lihat [LICENSE](LICENSE). Anda bebas memakai,
+mengubah, dan mendistribusikan aplikasi ini, termasuk untuk kebutuhan komersial,
+dengan tetap mencantumkan hak cipta dan teks lisensi. Tidak ada biaya lisensi,
+registrasi, atau masa kedaluwarsa.

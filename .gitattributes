@@ -1,0 +1,13 @@
+# Normalisasi akhir baris agar konsisten di Windows, Linux, dan macOS.
+* text=auto eol=lf
+
+# Berkas biner tidak boleh diubah barisnya.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
