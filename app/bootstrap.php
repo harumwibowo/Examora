@@ -11,7 +11,16 @@ define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
 define('VIEW_PATH', BASE_PATH . '/views');
 define('STORAGE_PATH', BASE_PATH . '/storage');
-define('DB_UJIAN_VERSION', '1.0.0');
+/**
+ * Versi aplikasi dibaca dari berkas VERSION di root instalasi.
+ * Berkas ini juga dipakai menu Update untuk membandingkan dengan repository.
+ */
+define(
+    'DB_UJIAN_VERSION',
+    is_file(dirname(__DIR__) . '/VERSION')
+        ? trim((string) file_get_contents(dirname(__DIR__) . '/VERSION'))
+        : '1.1.0'
+);
 
 mb_internal_encoding('UTF-8');
 date_default_timezone_set('Asia/Jakarta');

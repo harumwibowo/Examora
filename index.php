@@ -11,6 +11,7 @@ require APP_PATH . '/ctrl_soal.php';
 require APP_PATH . '/ctrl_ujian.php';
 require APP_PATH . '/ctrl_nilai.php';
 require APP_PATH . '/ctrl_database.php';
+require APP_PATH . '/ctrl_update.php';
 
 $route = (string) ($_GET['r'] ?? 'home');
 $route = preg_replace('/[^a-z0-9_]/', '', $route) ?: 'home';
@@ -242,6 +243,15 @@ try {
             break;
         case 'database_restore':
             (new DatabaseController())->restore();
+            break;
+        case 'update':
+            (new UpdateController())->index();
+            break;
+        case 'update_cek':
+            (new UpdateController())->cek();
+            break;
+        case 'update_jalan':
+            (new UpdateController())->jalan();
             break;
         case 'profil':
             (new AdminController())->profil();

@@ -93,6 +93,7 @@ if (empty($isSuper)) {
         <?php if ($isSuper): ?>
           <a class="btn btn-ghost text-start" href="<?= e(url('guru')) ?>">♟ &nbsp; Kelola Akun Guru</a>
           <a class="btn btn-ghost text-start" href="<?= e(url('pengaturan')) ?>">⚙ &nbsp; Pengaturan Sekolah</a>
+          <a class="btn btn-ghost text-start" href="<?= e(url('update')) ?>">⟳ &nbsp; Update Aplikasi</a>
         <?php endif; ?>
       </div>
     </div>

@@ -217,16 +217,48 @@ terlindungi. Jangan pakai cara ini untuk server yang diakses siswa.
 
 ## 9. Memperbarui aplikasi
 
-Simpan dulu backup database, lalu:
+### Lewat aplikasi (disarankan)
+
+Superadmin membuka menu **Sistem → Update** di dashboard:
+
+1. Tekan **Cek Update** — versi terpasang dibandingkan dengan berkas `VERSION`
+   di cabang `main` repository.
+2. Bila ada versi lebih baru, tombol berubah menjadi **Update ke v…**.
+3. Tekan tombol itu, konfirmasi dialog, lalu tunggu. Aplikasi:
+   - menyalin seluruh kode lama ke `storage/backup-kode-<waktu>`
+     (maksimal 3 cadangan terbaru),
+   - mengunduh dan menerapkan pembaruan (`git pull --ff-only` bila instalasi
+     berasal dari clone, atau paket ZIP dari GitHub),
+   - memeriksa ulang versi dan mencatat hasilnya ke audit log.
+
+`config/config.php`, `install.lock`, isi `storage/`, dan `assets/uploads/`
+tidak pernah diubah. Database juga tidak disentuh selain baris audit log.
+
+| Mode | Kondisi |
+|---|---|
+| Git | Folder instalasi berisi `.git` dan perintah `git` bisa dijalankan |
+| Paket ZIP | Git tidak tersedia, tetapi ada `ZipArchive` atau `gzinflate` |
+| Manual | Keduanya tidak ada — unduh paket dari GitHub dan salin manual |
+
+### Secara manual
 
 ```bash
 cd /var/www/examora
-sudo git pull
+git pull --ff-only origin main
 ```
 
-Jangan hapus `config/config.php`, `install.lock`, isi `storage/`, dan
-`assets/uploads/`. Migrasi skema ringan berjalan otomatis saat halaman pertama
-dibuka.
+Bila instalasi hasil unduhan ZIP, ekstrak paket terbaru dari GitHub lalu timpa
+folder aplikasi **kecuali** `config/config.php`, `install.lock`, `storage/`,
+dan `assets/uploads/`. Jangan hapus keduanya — aplikasi tidak akan bisa
+dimulai tanpa `config/config.php`, dan tanpa `install.lock` wizard instalasi
+muncul kembali.
+
+### Setelah update
+
+- Simpan dulu backup database sebelum pembaruan besar.
+- Migrasi skema ringan berjalan otomatis saat halaman pertama dibuka.
+- Bila perlu mengembalikan versi lama, salin isi
+  `storage/backup-kode-<waktu>` kembali ke root aplikasi.
 
 ---
 

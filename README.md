@@ -52,6 +52,11 @@ tanpa aplikasi tambahan di sisi siswa. Siswa cukup membuka tautan ujian di brows
   **Kembali ke Fullscreen** dan dicatat sebagai pelanggaran.
 - Menu **Database** (superadmin): hapus data terpilih, unduh backup `.sql`,
   dan restore dari file backup.
+- Menu **Update** (superadmin): tombol **Cek Update** membandingkan versi
+  terpasang dengan repository resmi di GitHub, lalu tombol **Update**
+  mengunduh dan menerapkannya langsung. `config/config.php`, `install.lock`,
+  `storage/`, dan `assets/uploads/` tidak disentuh, serta kode lama selalu
+  dicadangkan ke `storage/backup-kode-<waktu>` sebelum pembaruan berjalan.
 - Audit log aktivitas penting.
 - Tanpa kode registrasi, tanpa masa berlaku, tanpa pembayaran, tanpa panggilan keluar.
 
@@ -84,6 +89,8 @@ tanpa aplikasi tambahan di sisi siswa. Siswa cukup membuka tautan ujian di brows
 - MySQL **5.7+** atau MariaDB **10.4+**.
 - Web server Apache/Nginx atau `php -S` untuk pengembangan.
 - Tidak membutuhkan ekstensi `zip` (ekspor XLSX memakai penulis ZIP bawaan).
+  Ekstraksi ZIP hanya dipakai menu **Update**; bila server punya perintah
+  `git`, update berjalan lewat `git pull` tanpa perlu ekstensi zip.
 
 Panduan lengkap per jenis server (cPanel, VPS Apache, VPS Nginx, izin folder,
 HTTPS, dan troubleshooting) ada di **[docs/DEPLOY.md](docs/DEPLOY.md)**.
@@ -189,6 +196,7 @@ mematikan pemeriksaan foreign key sementara dan mencatat hasilnya ke audit log.
 examora/
 ├── index.php              # front controller (routing ?r=...)
 ├── .htaccess              # proteksi folder internal
+├── VERSION                # versi aplikasi (dipakai menu Update)
 ├── app/                   # bootstrap, inti, controller, penilaian, xlsx
 ├── assets/                # CSS, JS, Bootstrap lokal, upload logo
 ├── config/                # config.php (dibuat installer)

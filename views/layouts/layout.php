@@ -49,6 +49,7 @@ $logo = $sekolah['logo'] ?? '';
         <?= $nav('pengaturan', 'Pengaturan', '⚙') ?>
         <?= $nav('audit', 'Audit Log', '◎') ?>
         <?= $nav('database', 'Database', '▧') ?>
+        <?= $nav('update', 'Update', '⟳') ?>
       <?php endif; ?>
       <?= $nav('profil', 'Akun Saya', '◉') ?>
       <a class="menu-link" href="<?= e(url('home')) ?>"><span class="mi">◈</span><span class="menu-text">Halaman Depan</span></a>
