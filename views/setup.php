@@ -1,4 +1,4 @@
-<?php /** @var array $errors @var bool $done */ ?>
+<?php /** @var array $errors @var bool $done @var array $requirements @var bool $siap */ ?>
 <!doctype html>
 <html lang="id">
 <head>
@@ -28,6 +28,35 @@
       </div>
     </div>
   <?php else: ?>
+    <div class="card mb-3">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Persyaratan Server</span>
+        <span class="badge <?= $siap ? 'text-bg-success' : 'text-bg-danger' ?>">
+          <?= $siap ? 'Siap dipasang' : 'Perlu diperbaiki' ?>
+        </span>
+      </div>
+      <div class="card-body py-2">
+        <ul class="list-unstyled mb-0" style="font-size:.84rem">
+          <?php foreach ($requirements as $req): ?>
+            <li class="d-flex gap-2 align-items-start py-1">
+              <span aria-hidden="true"><?= $req['ok'] ? '✅' : ($req['wajib'] ? '❌' : '⚠️') ?></span>
+              <span>
+                <?= e($req['label']) ?>
+                <?php if ($req['hint'] !== ''): ?>
+                  <span class="text-muted">— <?= e($req['hint']) ?></span>
+                <?php endif; ?>
+              </span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+        <?php if (!$siap): ?>
+          <div class="form-text mt-2">
+            Item bertanda ❌ wajib diperbaiki sebelum aplikasi dapat dipasang.
+          </div>
+        <?php endif; ?>
+      </div>
+    </div>
+
     <?php if ($errors): ?>
       <div class="alert alert-danger">
         <strong>Periksa kembali:</strong>
@@ -52,7 +81,7 @@
           <div class="col-md-6">
             <label class="form-label">Nama Database</label>
             <input class="form-control" name="db_name" value="<?= e($_POST['db_name'] ?? 'cbt_bebas') ?>" required>
-            <div class="form-text">Dibuat otomatis bila belum ada.</div>
+            <div class="form-text">Dibuat otomatis bila belum ada. Jika akun database tidak berhak membuat database, buat dulu lewat panel hosting lalu isi nama yang sama.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label">User Database</label>
@@ -95,7 +124,7 @@
 
       <div class="card-body border-top d-flex align-items-center gap-3">
         <?= Csrf::field() ?>
-        <button class="btn btn-teal px-4" type="submit">Pasang Sekarang</button>
+        <button class="btn btn-teal px-4" type="submit" <?= $siap ? '' : 'disabled' ?>>Pasang Sekarang</button>
         <span class="form-text mb-0">Pastikan folder <code>config/</code> dapat ditulis.</span>
       </div>
     </form>
