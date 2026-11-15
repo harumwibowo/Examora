@@ -109,6 +109,13 @@ final class BrandController
 
     private function serve(string $file, string $mime): void
     {
+        // Header cache bawaan sesi PHP (Expires 1981 + Pragma no-cache)
+        // bertabrakan dengan max-age di bawah sehingga browser ragu
+        // menyimpan ikon. Buang dulu, lalu tetapkan keputusan cache yang
+        // sama untuk respons 200 maupun 304.
+        header_remove('Expires');
+        header_remove('Pragma');
+
         if (!is_file($file)) {
             http_response_code(404);
             header('Content-Type: text/plain; charset=utf-8');
@@ -118,13 +125,14 @@ final class BrandController
         $mtime = (int) filemtime($file);
         $etag = '"' . md5($file . $mtime) . '"';
         $ifNone = trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? ''));
+        header('Cache-Control: public, max-age=86400');
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 86400) . ' GMT');
         if ($ifNone !== '' && $ifNone === $etag) {
             http_response_code(304);
             header('ETag: ' . $etag);
             exit;
         }
         header('Content-Type: ' . $mime);
-        header('Cache-Control: public, max-age=86400');
         header('ETag: ' . $etag);
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
         header('Content-Length: ' . filesize($file));

@@ -50,10 +50,18 @@ function asset(string $path): string
 
 /**
  * URL favicon aplikasi. Logo sekolah dipakai bila tersedia.
+ * Parameter v = waktu ubah berkas sumber (mirip asset()) agar browser
+ * langsung mengambil ikon baru begitu logo sekolah diganti, tanpa
+ * menunggu kedaluwarsa cache favicon yang biasanya sangat lengket.
  */
 function favicon_url(): string
 {
-    return url('favicon');
+    $logo = trim(setting('logo_sekolah'));
+    $file = $logo !== '' ? BASE_PATH . '/assets/uploads/' . basename($logo) : '';
+    if ($file === '' || !is_file($file)) {
+        $file = BASE_PATH . '/assets/img/favicon.svg';
+    }
+    return url('favicon', ['v' => (string) (int) @filemtime($file)]);
 }
 
 function favicon_tags(): string
