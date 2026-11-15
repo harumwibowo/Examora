@@ -210,7 +210,7 @@ terlindungi. Jangan pakai cara ini untuk server yang diakses siswa.
 - [ ] Login superadmin berhasil; password kuat dan tidak dibagikan.
 - [ ] Menu **Pengaturan → Database** diuji: unduh backup dan simpan di tempat aman.
 - [ ] Batas login siswa, pengawasan ujian, dan identitas sekolah diatur.
-- [ ] Zona waktu server konsisten (aplikasi memaksa `Asia/Jakarta`).
+- [ ] Zona waktu sistem sesuai kebutuhan sekolah (Pengaturan Sekolah → Zona Waktu; default `Asia/Jakarta`).
 - [ ] Backup rutin: file `.sql` dari menu Database + salinan folder `assets/uploads/`.
 
 ---

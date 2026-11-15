@@ -24,6 +24,11 @@ tanpa aplikasi tambahan di sisi siswa. Siswa cukup membuka tautan ujian di brows
   diterima di kolom ID — ID dan `resourcekey` diambil otomatis.
 - Token ujian 6 karakter, jadwal mulai/selesai, durasi, serta durasi minimal
   pengerjaan sebelum tombol kumpulkan aktif (mencegah siswa mengumpulkan terlalu cepat).
+- **Zona waktu sistem dapat diatur** di menu Pengaturan Sekolah — hanya tiga
+  pilihan: WIB (`Asia/Jakarta`), WITA (`Asia/Makassar`), atau WIT (`Asia/Jayapura`),
+  default WIB. Jadwal, durasi, timer, dan seluruh riwayat waktu ujian mengikuti
+  zona tersebut. Perubahan zona otomatis menyesuaikan data waktu tersimpan agar
+  titik waktu tetap sama, sehingga ujian yang sedang berlangsung tidak terpengaruh.
 - Target peserta fleksibel: **per jenjang**, **per kelas**, atau **siswa tertentu**,
   dengan filter tambahan per agama (mis. ujian PAI hanya untuk siswa beragama
   tertentu). Perkiraan jumlah peserta ditampilkan saat memilih target.

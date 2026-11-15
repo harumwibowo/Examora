@@ -30,7 +30,9 @@ final class DB
             PDO::ATTR_EMULATE_PREPARES => false,
             PDO::ATTR_STRINGIFY_FETCHES => false,
         ]);
-        self::$pdo->exec("SET time_zone = '+07:00'");
+        // Offset zona PHP saat ini; bootstrap menyamakan ulang setelah
+        // membaca setting timezone, karena koneksi bisa terbentuk lebih dulu.
+        self::$pdo->exec("SET time_zone = '" . date('P') . "'");
         return self::$pdo;
     }
 

@@ -11,6 +11,7 @@ $browserTeks = browser_list_text($browserTerpilih);
 $browserSaatIni = browser_family();
 $kaw = pengaturan_pengawasan();
 $maksLogin = maks_login_siswa();
+$tzSekarang = app_timezone();
 $uaSaatIni = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
 ?>
 <div class="page-head">
@@ -80,6 +81,40 @@ $uaSaatIni = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
         </div>
         <input class="form-control form-control-sm" type="file" name="logo" accept="image/png,image/jpeg,image/gif,image/webp">
         <div class="form-text">PNG, JPG, GIF, atau WEBP. Maksimal 2 MB.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2">
+        <span>Zona Waktu Sistem</span>
+        <span class="badge badge-soft ms-auto">Jadwal &amp; timer ujian</span>
+      </div>
+      <div class="card-body">
+        <div class="row g-3 align-items-start">
+          <div class="col-md-5">
+            <label class="form-label" for="timezone">Zona Waktu</label>
+            <select class="form-select" name="timezone" id="timezone" data-asli="<?= e($tzSekarang) ?>">
+              <?php foreach (timezone_options() as $tz => $label): ?>
+                <option value="<?= e($tz) ?>" <?= $tz === $tzSekarang ? 'selected' : '' ?>><?= e($label) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <div class="form-text">Offset saat ini: <?= e(timezone_offset_label($tzSekarang)) ?>.</div>
+          </div>
+          <div class="col-md-7">
+            <div class="alert alert-info mb-0" style="font-size:.8rem">
+              <strong>Waktu server: <?= e(date('Y-m-d H:i:s')) ?> (<?= e(timezone_offset_label($tzSekarang)) ?>).</strong><br>
+              Zona waktu ini dipakai untuk jadwal mulai/selesai ujian, durasi dan timer
+              pengerjaan, batas waktu, serta seluruh riwayat waktu. Pilihan hanya tiga
+              zona Indonesia — WIB, WITA, WIT — yang tidak mengalami perubahan jam
+              musim (DST).<br>
+              Saat zona waktu diubah, semua data waktu yang tersimpan (jadwal, batas waktu,
+              riwayat ujian) otomatis digeser agar titik waktu tetap sama — ujian yang sedang
+              berlangsung tidak kehilangan maupun mendapat waktu tambahan.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -208,3 +243,20 @@ $uaSaatIni = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
     </div>
   </div>
 </form>
+
+<script>
+(function () {
+  var sel = document.getElementById('timezone');
+  if (!sel || !sel.form) return;
+  var asli = sel.getAttribute('data-asli');
+  sel.form.addEventListener('submit', function (e) {
+    if (sel.value !== asli && !confirm(
+      'Ubah zona waktu sistem ke ' + sel.value + '?\n\n' +
+      'Semua data waktu tersimpan (jadwal, batas waktu, riwayat) akan digeser ' +
+      'otomatis agar titik waktu tetap sama.'
+    )) {
+      e.preventDefault();
+    }
+  });
+})();
+</script>

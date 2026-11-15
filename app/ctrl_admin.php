@@ -1228,6 +1228,45 @@ final class AdminController
         // Batas perangkat yang boleh login bersamaan untuk satu siswa.
         set_setting('maks_login_siswa', (string) max(1, min(20, int_input('maks_login_siswa', 1))));
 
+        // Zona waktu sistem: menentukan jadwal, durasi, timer, dan seluruh riwayat waktu ujian.
+        // Hanya tiga zona Indonesia yang boleh dipilih (WIB, WITA, WIT).
+        $tzBaru = str_input('timezone');
+        if ($tzBaru !== '') {
+            $tzLama = app_timezone();
+            if (!isset(timezone_options()[$tzBaru])) {
+                flash_error('Zona waktu "' . $tzBaru . '" tidak dikenal. Pilihan yang tersedia: WIB, WITA, WIT.');
+                redirect('pengaturan');
+            }
+            if ($tzBaru !== $tzLama) {
+                $delta = timezone_offset_seconds($tzBaru) - timezone_offset_seconds($tzLama);
+                try {
+                    // Satu transaksi: geser data lama + simpan setting, boleh gagal bersamaan.
+                    $jmlData = DB::tx(static function () use ($tzBaru, $delta): int {
+                        $jml = timezone_shift_datetimes($delta);
+                        set_setting('timezone', $tzBaru);
+                        return $jml;
+                    });
+                } catch (Throwable $e) {
+                    flash_error('Zona waktu gagal diubah, tidak ada data yang berubah: ' . $e->getMessage());
+                    redirect('pengaturan');
+                }
+                // Samakan PHP dan sesi MySQL pada sisa request ini (audit memakai now()).
+                date_default_timezone_set($tzBaru);
+                DB::pdo()->exec("SET time_zone = '" . date('P') . "'");
+                audit('timezone_ubah', null, null, [
+                    'dari' => $tzLama,
+                    'ke' => $tzBaru,
+                    'geser_detik' => $delta,
+                    'data_waktu' => $jmlData,
+                ]);
+                flash(
+                    'info',
+                    'Zona waktu diubah ke ' . $tzBaru . '. ' . $jmlData
+                    . ' data waktu disesuaikan agar titik waktu tetap sama.'
+                );
+            }
+        }
+
         if (!empty($_FILES['logo']['name']) && ($_FILES['logo']['error'] ?? 1) === UPLOAD_ERR_OK) {
             $tmp = $_FILES['logo']['tmp_name'];
             // getimagesize() tidak dapat memvalidasi SVG, jadi hanya format raster yang diizinkan.

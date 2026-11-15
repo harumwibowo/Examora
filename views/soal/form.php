@@ -196,6 +196,9 @@ $tipeOpsi = tipe_soal_options();
             <label class="form-label">Selesai (opsional)</label>
             <input class="form-control" type="datetime-local" name="selesai_at" value="<?= e(!empty($row['selesai_at']) ? date('Y-m-d\TH:i', strtotime($row['selesai_at'])) : '') ?>">
           </div>
+          <div class="col-12">
+            <div class="form-text">Jadwal mengikuti zona waktu sistem (Pengaturan Sekolah → Zona Waktu).</div>
+          </div>
         </div>
       </div>
     </div>

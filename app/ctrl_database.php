@@ -175,7 +175,7 @@ final class DatabaseController
         echo self::BACKUP_MARKER . "\n";
         echo '-- Database: ' . $namaDb . "\n";
         echo '-- Bagian: ' . implode(', ', $pilihan) . "\n";
-        echo '-- Dibuat: ' . date('Y-m-d H:i:s') . " (Asia/Jakarta)\n";
+        echo '-- Dibuat: ' . date('Y-m-d H:i:s') . ' (' . app_timezone() . ")\n";
         echo '-- Aplikasi: ' . APP_NAME . ' v' . DB_UJIAN_VERSION . "\n";
         echo "SET NAMES utf8mb4;\n";
         echo "SET FOREIGN_KEY_CHECKS=0;\n\n";

@@ -299,6 +299,104 @@ function set_setting(string $key, string $value): void
     );
 }
 
+/* ------------------------------------------------------------------
+ * Zona waktu aplikasi — satu-satunya sumber: setting 'timezone' (IANA).
+ * Dipakai bootstrap (date_default_timezone_set) dan koneksi PDO
+ * (SET time_zone), sehingga waktu PHP dan MySQL selalu sama. Keduanya
+ * harus sinkron: jadwal ujian dibaca lewat NOW() di MySQL sekaligus
+ * strtotime() di PHP.
+ * ------------------------------------------------------------------ */
+
+function timezone_valid(string $tz): bool
+{
+    if ($tz === '') {
+        return false;
+    }
+    try {
+        new DateTimeZone($tz);
+        return true;
+    } catch (Throwable) {
+        return false;
+    }
+}
+
+function app_timezone(): string
+{
+    $tz = setting('timezone', 'Asia/Jakarta');
+    return timezone_valid($tz) ? $tz : 'Asia/Jakarta';
+}
+
+/** Offset zona waktu saat ini dalam detik dari UTC. */
+function timezone_offset_seconds(string $tz): int
+{
+    return (new DateTimeZone($tz))->getOffset(new DateTime('now'));
+}
+
+/** Offset zona waktu dalam format MySQL, mis. '+07:00'. */
+function timezone_offset_label(string $tz): string
+{
+    $detik = timezone_offset_seconds($tz);
+    $tanda = $detik < 0 ? '-' : '+';
+    $detik = abs($detik);
+    return sprintf('%s%02d:%02d', $tanda, intdiv($detik, 3600), intdiv($detik % 3600, 60));
+}
+
+/**
+ * Tiga zona waktu Indonesia untuk dropdown pengaturan:
+ * WIB (Asia/Jakarta), WITA (Asia/Makassar), WIT (Asia/Jayapura).
+ * Ketiganya tidak punya DST sehingga jam musim tidak memengaruhi
+ * jadwal ujian. Offset dihitung saat ini untuk label opsi.
+ *
+ * @return array<string,string> zona IANA => label opsi
+ */
+function timezone_options(): array
+{
+    $zona = [
+        'Asia/Jakarta'  => 'WIB',  // Waktu Indonesia Barat
+        'Asia/Makassar' => 'WITA', // Waktu Indonesia Tengah
+        'Asia/Jayapura' => 'WIT',  // Waktu Indonesia Timur
+    ];
+    $out = [];
+    foreach ($zona as $tz => $nama) {
+        $out[$tz] = $nama . ' — ' . $tz . ' (' . timezone_offset_label($tz) . ')';
+    }
+    return $out;
+}
+
+/**
+ * Geser semua kolom DATETIME sejumlah detik — dipanggil saat zona waktu
+ * diubah agar titik waktu absolut tetap sama: jadwal ujian, batas waktu,
+ * dan riwayat tidak bergeser nyata (ujian berlangsung tidak kehilangan
+ * atau mendapat waktu). Kolom TIMESTAMP tidak disentuh: MySQL menyimpannya
+ * dalam UTC sehingga otomatis mengikuti zona sesi baru. Baris NULL atau
+ * tanggal tidak valid (≤ 1970) dilewati — literal '0000-00-00' justru
+ * ditolak MySQL yang berjalan dalam mode ketat.
+ *
+ * @return int jumlah baris yang digeser
+ */
+function timezone_shift_datetimes(int $deltaDetik): int
+{
+    $deltaDetik = (int) $deltaDetik;
+    if ($deltaDetik === 0) {
+        return 0;
+    }
+    $kolom = DB::all(
+        "SELECT TABLE_NAME AS tabel, COLUMN_NAME AS kolom
+           FROM information_schema.COLUMNS
+          WHERE TABLE_SCHEMA = DATABASE() AND DATA_TYPE = 'datetime'"
+    );
+    $total = 0;
+    foreach ($kolom as $col) {
+        $t = (string) $col['tabel'];
+        $c = (string) $col['kolom'];
+        $total += (int) DB::exec(
+            "UPDATE `{$t}` SET `{$c}` = DATE_ADD(`{$c}`, INTERVAL {$deltaDetik} SECOND)
+              WHERE `{$c}` > '1971-01-01 00:00:00'"
+        );
+    }
+    return $total;
+}
+
 /**
  * Daftar jenjang yang didukung: kunci => label.
  */

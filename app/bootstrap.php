@@ -23,7 +23,6 @@ define(
 );
 
 mb_internal_encoding('UTF-8');
-date_default_timezone_set('Asia/Jakarta');
 
 $configFile = BASE_PATH . '/config/config.php';
 $GLOBALS['config'] = is_file($configFile) ? (array) require $configFile : [];
@@ -32,6 +31,21 @@ require APP_PATH . '/helpers.php';
 require APP_PATH . '/core.php';
 require APP_PATH . '/penilaian.php';
 require APP_PATH . '/xlsx.php';
+
+/* ------------------------------------------------------------------
+ * Zona waktu aplikasi (Pengaturan Sekolah → Zona Waktu, default
+ * Asia/Jakarta). Membaca pengaturan membuka koneksi DB, dan koneksi
+ * tersebut belum tahu zona waktu baru, jadi sesi MySQL (SET time_zone)
+ * disamakan ulang setelah zona waktu ditetapkan. PHP dan MySQL wajib
+ * memakai zona yang sama: jadwal ujian dibaca lewat NOW() di MySQL
+ * sekaligus strtotime()/date() di PHP.
+ * ------------------------------------------------------------------ */
+date_default_timezone_set(app_timezone());
+try {
+    DB::pdo()->exec("SET time_zone = '" . date('P') . "'");
+} catch (Throwable) {
+    // Belum terkonfigurasi (halaman setup) — belum ada sesi DB yang perlu disamakan.
+}
 
 $debug = (bool) ($GLOBALS['config']['debug'] ?? false);
 ini_set('display_errors', $debug ? '1' : '0');
