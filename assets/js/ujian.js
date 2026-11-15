@@ -328,23 +328,21 @@
 
   // ---------- tampil/sembunyi daftar nomor soal ----------
   // Menyembunyikan daftar soal membuat area input jawaban lebih luas, terutama
-  // saat layar pendek atau soal bertipe uraian. Pilihan diingat per ujian.
+  // saat layar pendek atau soal bertipe uraian. Daftar nomor soal selalu
+  // tersembunyi saat halaman dibuka dan hanya muncul setelah siswa menekan
+  // tombol "Daftar soal".
   var $navToggle = document.getElementById('ljk-nav-toggle');
-  var navKey = 'cbt_nav_hidden_' + data.id_riwayat;
 
-  function setNavHidden(hidden, persist) {
+  function setNavHidden(hidden) {
     if (!$nav || !$navToggle) return;
     $nav.hidden = hidden;
     $navToggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
     $navToggle.title = hidden ? 'Tampilkan daftar soal' : 'Sembunyikan daftar soal';
-    if (persist) {
-      try { localStorage.setItem(navKey, hidden ? '1' : '0'); } catch (e) {}
-    }
   }
 
   if ($navToggle) {
-    $navToggle.addEventListener('click', function () { setNavHidden(!$nav.hidden, true); });
-    try { setNavHidden(localStorage.getItem(navKey) === '1', false); } catch (e) {}
+    $navToggle.addEventListener('click', function () { setNavHidden(!$nav.hidden); });
+    setNavHidden(true);
   }
 
   // ---------- timer ----------
@@ -449,33 +447,84 @@
     if (fsOverlay) fsOverlay.classList.remove('show');
   }
 
+  // Browser menolak requestFullscreen yang tidak lahir dari gestur pengguna,
+  // sehingga permintaan otomatis saat halaman baru dimuat hampir selalu gagal
+  // di Chrome/Edge/Firefox. Alih-alih menyambut siswa dengan overlay, kita
+  // menunggu gestur pertamanya (klik/ketuk atau tekan tombol apa pun) lalu
+  // langsung masuk fullscreen pada gestur tersebut.
+  var fsMenungguGestur = false;
+  var fsMeminta = false;
+
+  function padaGestur(ev) {
+    if (!fsMenungguGestur) return;
+    // Tombol di dalam overlay punya penanganannya sendiri.
+    if (ev && ev.target && ev.target.closest && ev.target.closest('.overlay')) return;
+    masukFullscreen();
+  }
+
+  function tungguGestur(aktif) {
+    if (fsMenungguGestur === aktif) return;
+    fsMenungguGestur = aktif;
+    var aksi = aktif ? 'addEventListener' : 'removeEventListener';
+    // Hanya 'click' dan 'keydown': keduanya gestur yang diakui browser sebagai
+    // pemicu fullscreen dan sudah selesai diproses, sehingga ketukan siswa
+    // (memilih jawaban, membuka tab) tidak ikut terganggu.
+    ['click', 'keydown'].forEach(function (nama) {
+      document[aksi](nama, padaGestur, true);
+    });
+  }
+
   function masukFullscreen() {
-    if (!fsMendukung) return;
+    if (!fsMendukung || fsMeminta) return;
+    fsMeminta = true;
     var hasil;
     try {
       hasil = fsRoot.requestFullscreen
         ? fsRoot.requestFullscreen()
         : fsRoot.webkitRequestFullscreen();
     } catch (e) {
-      tampilFs('Browser menolak mode fullscreen. Izinkan fullscreen untuk situs ini, lalu coba lagi.');
+      fsMeminta = false;
+      gagalFs();
       return;
     }
 
     function berhasil() {
+      fsMeminta = false;
       fsAktif = true;
+      tungguGestur(false);
       sembunyiFs();
     }
     function gagal() {
-      // Jangan hitung sebagai pelanggaran bila siswa belum pernah masuk fullscreen.
-      tampilFs('Aktifkan mode fullscreen untuk mengerjakan ujian. Klik tombol di bawah.');
+      fsMeminta = false;
+      // Permintaan sebelumnya bisa saja sudah berhasil (dua gestur beruntun).
+      if (fsElement()) {
+        berhasil();
+        return;
+      }
+      // Jangan hitung sebagai pelanggaran bila siswa belum pernah masuk
+      // fullscreen: cukup tunggu gestur berikutnya untuk mencoba lagi.
+      if (fsAktif) {
+        tampilFs('Izinkan mode fullscreen untuk situs ini, lalu klik tombol di bawah.');
+      } else {
+        tungguGestur(true);
+      }
     }
 
     if (hasil && typeof hasil.then === 'function') {
       hasil.then(berhasil).catch(gagal);
     } else {
       window.setTimeout(function () {
+        fsMeminta = false;
         if (fsElement()) berhasil(); else gagal();
       }, 300);
+    }
+  }
+
+  function gagalFs() {
+    if (fsAktif) {
+      tampilFs('Browser menolak mode fullscreen. Izinkan fullscreen untuk situs ini, lalu coba lagi.');
+    } else {
+      tungguGestur(true);
     }
   }
 
@@ -502,8 +551,9 @@
     if (fsElement()) {
       fsAktif = true;
     } else {
-      // Browser biasanya menolak requestFullscreen tanpa gestur pengguna.
-      // Overlay menyediakan tombol yang berfungsi sebagai gestur tersebut.
+      // Coba langsung tanpa gestur (berhasil di browser yang mengizinkan,
+      // mis. Safari dengan izin fullscreen tersimpan). Bila ditolak, permintaan
+      // otomatis diulang pada gestur pertama siswa — tanpa overlay pembuka.
       masukFullscreen();
     }
   }

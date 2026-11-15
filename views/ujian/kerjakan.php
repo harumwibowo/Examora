@@ -16,7 +16,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JS
   <div class="timer" id="timer">--:--</div>
 </div>
 
-<div class="exam-body-wrap">
+<div class="exam-body-wrap mobile-soal">
   <div class="exam-left">
     <?php if ($pdfUrl !== ''): ?>
       <div class="pdf-view" id="pdf-view"
@@ -52,18 +52,18 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JS
       </div>
       <div class="ms-auto d-flex flex-wrap align-items-center justify-content-end gap-2">
         <button type="button" class="ljk-nav-toggle" id="ljk-nav-toggle"
-                aria-expanded="true" aria-controls="ljk-nav"
-                title="Sembunyikan daftar soal">
+                aria-expanded="false" aria-controls="ljk-nav"
+                title="Tampilkan daftar soal">
           <span class="chev" aria-hidden="true"></span>
           <span class="lbl">Daftar soal</span>
         </button>
         <div class="mobile-tabs">
-          <button type="button" class="btn btn-sm btn-ghost" data-exam-tab="soal">Soal</button>
-          <button type="button" class="btn btn-sm btn-ghost active" data-exam-tab="ljk">Jawaban</button>
+          <button type="button" class="btn btn-sm btn-ghost active" data-exam-tab="soal">Soal</button>
+          <button type="button" class="btn btn-sm btn-ghost" data-exam-tab="ljk">Jawaban</button>
         </div>
       </div>
     </div>
-    <div class="ljk-nav" id="ljk-nav"></div>
+    <div class="ljk-nav" id="ljk-nav" hidden></div>
     <div class="ljk-body" id="ljk-body"></div>
     <div class="ljk-foot">
       <div class="ljk-hint" id="ljk-hint">Semua jawaban wajib diisi sebelum ujian dikumpulkan.</div>
