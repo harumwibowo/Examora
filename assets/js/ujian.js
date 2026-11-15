@@ -11,6 +11,7 @@
     answers: data.jawaban || {},
     current: 1,
     timers: {},
+    retry: {},
     selesai: false,
     violations: data.pelanggaran || 0,
     lastViolation: 0
@@ -234,7 +235,67 @@
     state.timers[n] = setTimeout(function () { saveAnswer(n); }, 700);
   }
 
+  /**
+   * Baca respons API sebagai teks lalu JSON. Server kadang menjawab halaman
+   * HTML (galat 500, blokir hosting, halaman 419) sehingga r.json() gagal dan
+   * penyebabnya hilang; dengan cara ini status HTTP tetap bisa dilaporkan.
+   */
+  function bacaJson(r) {
+    return r.text().then(function (teks) {
+      var j = null;
+      try { j = JSON.parse(teks); } catch (e) {}
+      return { status: r.status, data: j };
+    });
+  }
+
+  /** Sesi/token tidak valid: semua simpanan pasti gagal, jadi beri tahu siswa. */
+  function perluMasukUlang(res) {
+    return res && (res.status === 401 || res.status === 419 || (res.data && res.data.csrf));
+  }
+
+  /**
+   * Tampilkan kegagalan simpan beserta sebabnya (judul/tooltip + console) dan
+   * jadwalkan percobaan ulang bertingkat. Sebelumnya kegagalan diulang tiap
+   * 3 detik tanpa henti dan sebabnya tidak pernah diketahui pengawas.
+   * `ulang = false` dipakai untuk galat yang tidak akan berubah bila diulang
+   * (mis. nomor soal tidak ditemukan).
+   */
+  function gagalSimpan(n, pesan, ulang) {
+    $save.className = 'save-state err';
+    $save.textContent = 'Gagal menyimpan';
+    $save.title = pesan;
+    if (window.console && console.warn) console.warn('[autosave] soal ' + n + ': ' + pesan);
+    if (ulang === false) return;
+    var coba = (state.retry[n] || 0) + 1;
+    state.retry[n] = coba;
+    var jeda = Math.min(2000 * Math.pow(2, coba - 1), 30000);
+    clearTimeout(state.timers[n]);
+    state.timers[n] = setTimeout(function () { saveAnswer(n); }, jeda);
+  }
+
+  // Sesi tidak valid / token kedaluwarsa: semua simpanan pasti gagal, jadi
+  // hentikan percobaan ulang dan minta siswa masuk kembali. Jawaban tetap ada
+  // di localStorage dan dikirim ulang setelah halaman dimuat kembali.
+  var sesiBerakhir = false;
+  function tandaiSesiBerakhir(pesan) {
+    if (sesiBerakhir) return;
+    sesiBerakhir = true;
+    Object.keys(state.timers).forEach(function (k) { clearTimeout(state.timers[k]); });
+    $save.className = 'save-state err';
+    $save.textContent = 'Sesi berakhir';
+    $save.title = pesan || '';
+    if (window.console && console.warn) console.warn('[autosave] ' + pesan);
+    showOverlay(
+      'Sesi berakhir',
+      (pesan || 'Sesi Anda tidak lagi valid.') +
+        ' Jawaban yang sudah dipilih masih tersimpan di perangkat ini. Muat ulang halaman, lalu masuk kembali untuk melanjutkan.',
+      false,
+      true
+    );
+  }
+
   function saveAnswer(n) {
+    if (state.selesai) return;
     var value = state.answers[n];
     saveLocal();
     if (!answered(value)) {
@@ -255,24 +316,57 @@
     $save.textContent = 'Menyimpan…';
 
     fetch(data.api.jawab, { method: 'POST', body: fd, headers: { 'X-CSRF-Token': data.csrf }, credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
-      .then(function (j) {
+      .then(bacaJson)
+      .then(function (res) {
+        var j = res.data;
+        if (!j) {
+          gagalSimpan(n, 'Server menjawab dengan format tak dikenal (HTTP ' + res.status + ').');
+          return;
+        }
         if (j.terkunci) {
           $save.className = 'save-state err';
           $save.textContent = 'Terkunci';
           showOverlay('Ujian dikunci', j.pesan || 'Hubungi guru/pengawas untuk membuka kunci.', false, true);
           return;
         }
-        if (!j.ok) throw new Error(j.pesan || 'Gagal menyimpan');
+        if (!j.ok) {
+          if (perluMasukUlang(res)) {
+            tandaiSesiBerakhir(j.pesan);
+          } else {
+            // 4xx berarti permintaan ini tidak akan berhasil bila diulang.
+            gagalSimpan(n, j.pesan || ('Gagal menyimpan (HTTP ' + res.status + ').'), res.status >= 500);
+          }
+          return;
+        }
+        state.retry[n] = 0;
         $save.className = 'save-state ok';
         $save.textContent = 'Tersimpan ' + j.tersimpan;
-        renderNav();
+        $save.removeAttribute('title');
+        // renderNav hanya memperbarui tampilan; kegagalannya tidak boleh
+        // membuat jawaban yang sudah tersimpan terlihat gagal.
+        try { renderNav(); } catch (e) {}
       })
       .catch(function () {
-        $save.className = 'save-state err';
-        $save.textContent = 'Gagal menyimpan';
-        setTimeout(function () { saveAnswer(n); }, 3000);
+        gagalSimpan(n, 'Koneksi ke server terputus. Periksa jaringan, jawaban tetap tersimpan di perangkat.');
       });
+  }
+
+  /**
+   * Jawaban yang tersimpan di perangkat tetapi belum sampai ke server (mis.
+   * simpanan terakhir gagal karena koneksi/sesi) dikirim ulang saat halaman
+   * dibuka, supaya tidak hilang saat ujian dikumpulkan.
+   */
+  function kirimJawabanTertunda() {
+    if (state.selesai) return;
+    var tertunda = data.soal.filter(function (q) {
+      var lokal = state.answers[q.nomor];
+      if (!answered(lokal)) return false;
+      var server = data.jawaban[q.nomor];
+      return JSON.stringify(lokal) !== JSON.stringify(server === undefined ? null : server);
+    });
+    tertunda.slice(0, 20).forEach(function (q, i) {
+      setTimeout(function () { saveAnswer(q.nomor); }, i * 200);
+    });
   }
 
   // event delegation
@@ -382,9 +476,15 @@
       body: (function () { var f = new FormData(); f.append('_token', data.csrf); f.append('id_riwayat', data.id_riwayat); return f; })(),
       headers: { 'X-CSRF-Token': data.csrf },
       credentials: 'same-origin'
-    }).then(function (r) { return r.json(); }).then(function (j) {
+    }).then(bacaJson).then(function (res) {
+      var j = res.data;
+      if (!j) return;
       if (j.terkunci) {
         showOverlay('Ujian dikunci', j.pesan || 'Hubungi guru/pengawas untuk membuka kunci.', false, true);
+        return;
+      }
+      if (!j.ok && perluMasukUlang(res)) {
+        tandaiSesiBerakhir(j.pesan);
         return;
       }
       if (j.ok && j.selesai && !state.selesai) {
@@ -747,6 +847,7 @@
 
   loadLocal();
   renderAll();
+  kirimJawabanTertunda();
   tick();
   setInterval(tick, 1000);
   setInterval(cekStatus, 30000);

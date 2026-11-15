@@ -442,6 +442,16 @@ final class Csrf
     {
         $sent = (string) ($_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
         if ($sent === '' || !hash_equals(self::token(), $sent)) {
+            // Endpoint API dipanggil lewat fetch: jawab JSON agar klien tahu
+            // penyebabnya (token kedaluwarsa -> muat ulang), bukan halaman HTML
+            // yang membuat status autosave hanya berbunyi "Gagal menyimpan".
+            if (str_starts_with((string) ($_GET['r'] ?? ''), 'api_')) {
+                json_out([
+                    'ok' => false,
+                    'csrf' => true,
+                    'pesan' => 'Token keamanan kedaluwarsa. Muat ulang halaman ujian.',
+                ], 419);
+            }
             http_response_code(419);
             View::render('errors/419', [], 'layout');
             exit;

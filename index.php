@@ -15,6 +15,7 @@ require APP_PATH . '/ctrl_update.php';
 
 $route = (string) ($_GET['r'] ?? 'home');
 $route = preg_replace('/[^a-z0-9_]/', '', $route) ?: 'home';
+$isApi = str_starts_with($route, 'api_');
 
 $installed = is_file(BASE_PATH . '/install.lock') && is_file(BASE_PATH . '/config/config.php');
 
@@ -302,8 +303,37 @@ try {
             View::render('errors/404', [], 'layout');
     }
 } catch (Abort $e) {
+    if ($isApi) {
+        json_out(['ok' => false, 'pesan' => $e->getMessage()], 400);
+    }
     if (!headers_sent()) {
         http_response_code(400);
     }
     View::render('errors/400', ['pesan' => $e->getMessage()], 'layout');
+} catch (Throwable $e) {
+    // Halaman biasa tetap ditangani set_exception_handler (halaman 500).
+    // Endpoint API wajib menjawab JSON: halaman HTML membuat status autosave
+    // hanya menampilkan "Gagal menyimpan" tanpa petunjuk apa pun.
+    if (!$isApi) {
+        throw $e;
+    }
+    $kode = bin2hex(random_bytes(6));
+    @file_put_contents(
+        STORAGE_PATH . '/logs/error.log',
+        sprintf(
+            "[%s] %s: [api:%s] %s in %s:%d\n%s\n",
+            date('c'),
+            $kode,
+            $route,
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e->getTraceAsString()
+        ),
+        FILE_APPEND
+    );
+    json_out([
+        'ok' => false,
+        'pesan' => 'Server gagal memproses permintaan (kode ' . $kode . '). Coba lagi, bila tetap gagal hubungi pengawas.',
+    ], 500);
 }
