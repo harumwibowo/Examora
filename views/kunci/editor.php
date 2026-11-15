@@ -88,24 +88,20 @@ foreach ($komposisi as $kb) {
 
       <!-- PG -->
       <div data-block="PG" style="<?= $tipe === 'PG' ? '' : 'display:none' ?>">
-        <div class="d-flex flex-wrap gap-3 mb-2">
+        <div class="kunci-pg mb-2" role="radiogroup" aria-label="Kunci jawaban nomor <?= $n ?>">
           <?php foreach ($opsiHuruf as $h): ?>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="pg_kunci[<?= $n ?>]" value="<?= $h ?>" id="pg<?= $n . $h ?>" <?= (($k['jawaban'] ?? '') === $h) ? 'checked' : '' ?>>
-              <label class="form-check-label fw-semibold" for="pg<?= $n . $h ?>"><?= $h ?></label>
-            </div>
+            <input class="kunci-pg-input" type="radio" name="pg_kunci[<?= $n ?>]" value="<?= $h ?>" id="pg<?= $n . $h ?>" <?= (($k['jawaban'] ?? '') === $h) ? 'checked' : '' ?>>
+            <label class="kunci-pg-btn" for="pg<?= $n . $h ?>"><?= $h ?></label>
           <?php endforeach; ?>
         </div>
       </div>
 
       <!-- PG Kompleks -->
       <div data-block="PG_Kompleks" style="<?= $tipe === 'PG_Kompleks' ? '' : 'display:none' ?>">
-        <div class="d-flex flex-wrap gap-3 mb-2">
+        <div class="kunci-pg mb-2" role="group" aria-label="Kunci jawaban nomor <?= $n ?> (boleh lebih dari satu)">
           <?php foreach ($opsiHuruf as $h): ?>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="pgk_kunci[<?= $n ?>][]" value="<?= $h ?>" id="pgk<?= $n . $h ?>" <?= in_array($h, (array) ($k['jawaban'] ?? []), true) ? 'checked' : '' ?>>
-              <label class="form-check-label fw-semibold" for="pgk<?= $n . $h ?>"><?= $h ?></label>
-            </div>
+            <input class="kunci-pg-input" type="checkbox" name="pgk_kunci[<?= $n ?>][]" value="<?= $h ?>" id="pgk<?= $n . $h ?>" <?= in_array($h, (array) ($k['jawaban'] ?? []), true) ? 'checked' : '' ?>>
+            <label class="kunci-pg-btn" for="pgk<?= $n . $h ?>"><?= $h ?></label>
           <?php endforeach; ?>
         </div>
         <div class="form-text">Centang semua jawaban yang benar. Skor diberikan bila himpunan jawaban sama persis.</div>

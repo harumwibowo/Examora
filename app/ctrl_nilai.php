@@ -145,13 +145,16 @@ final class NilaiController
         if ($nilaiList !== []) {
             sort($nilaiList);
             $n = count($nilaiList);
+            // Status tuntas dihitung dari nilai yang sudah dibulatkan (sama
+            // seperti angka yang tampil di tabel) supaya label tidak
+            // bertentangan dengan nilai di sebelahnya.
             $stat = [
                 'jumlah' => $n,
                 'rata' => array_sum($nilaiList) / $n,
                 'min' => $nilaiList[0],
                 'max' => $nilaiList[$n - 1],
                 'median' => $n % 2 === 0 ? ($nilaiList[$n / 2 - 1] + $nilaiList[$n / 2]) / 2 : $nilaiList[intdiv($n, 2)],
-                'tuntas' => count(array_filter($nilaiList, static fn ($v) => $v >= (float) setting('kkm', '75'))),
+                'tuntas' => count(array_filter($nilaiList, static fn ($v) => (nilai_bulat($v) ?? 0.0) >= (float) setting('kkm', '75'))),
             ];
         }
 
@@ -416,9 +419,9 @@ final class NilaiController
                 $s['nama_kelas'],
                 $s['username'],
                 $jumlah,
-                $best['nilai_pg'] !== null ? (float) $best['nilai_pg'] : '',
-                $best['nilai_uraian'] !== null ? (float) $best['nilai_uraian'] : '',
-                $best['nilai_akhir'] !== null ? (float) $best['nilai_akhir'] : '',
+                nilai_bulat($best['nilai_pg'] ?? null) ?? '',
+                nilai_bulat($best['nilai_uraian'] ?? null) ?? '',
+                nilai_bulat($best['nilai_akhir'] ?? null) ?? '',
                 $best['status'] ?? 'Belum mengerjakan',
             ];
         }

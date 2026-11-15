@@ -278,30 +278,62 @@ body.exam-body { background: #EDF2F7; overflow: hidden; }
 .q-label input { margin-top: .22rem; }
 .q-label.sel { background: var(--teal-soft); border-color: rgba(49,151,149,.4); }
 
-/* ---------- opsi jawaban: radio button + huruf ---------- */
-.opt-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .15rem; }
+/* ---------- opsi jawaban: huruf pilihan di dalam tombol ---------- */
+/* Tiap pilihan adalah satu tombol berhuruf (A–E). Saat dipilih tombol
+   terisi teal, sama seperti editor kunci jawaban. Input asli tetap ada di
+   DOM (disembunyikan visual) agar keyboard, pembaca layar, dan pengiriman
+   jawaban tetap bekerja. */
+.opt-row { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin-top: .2rem; }
 .opt {
-  display: inline-flex; align-items: center; gap: .4rem;
-  padding: .32rem .7rem .32rem .55rem; border-radius: 999px;
-  border: 1px solid #CBD5E0; background: #fff; cursor: pointer;
-  font-size: .9rem; line-height: 1.2; color: #2D3748; user-select: none;
+  position: relative;
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .1rem; border: 0; border-radius: 12px; background: none;
+  cursor: pointer; font-size: .9rem; line-height: 1.3; color: #2D3748; user-select: none;
 }
-.opt:hover { border-color: var(--teal); background: #F7FAFA; }
 .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
-.opt .dot {
-  width: 16px; height: 16px; flex: 0 0 16px; border-radius: 50%;
-  border: 2px solid #A0AEC0; background: #fff; display: inline-block; position: relative;
+.opt-huruf {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 40px; width: 40px; height: 40px; border-radius: 10px;
+  border: 1px solid #CBD5E0; background: #fff; color: #2D3748;
+  font-size: .98rem; font-weight: 800; line-height: 1; letter-spacing: .02em;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
-.opt input[type=checkbox] + .dot { border-radius: 4px; }
-.opt .huruf { font-weight: 800; letter-spacing: .02em; }
-.opt .opt-teks { color: var(--muted); font-size: .82rem; }
-.opt.sel { border-color: var(--teal); background: var(--teal-soft); }
-.opt.sel .dot { border-color: var(--teal-dark); }
-.opt.sel .dot::after {
-  content: ""; position: absolute; inset: 2px; border-radius: inherit; background: var(--teal-dark);
+.opt-kompleks .opt-huruf { border-radius: 8px; }
+.opt:hover .opt-huruf { border-color: var(--teal); background: var(--teal-soft); color: var(--teal-dark); }
+.opt-teks { color: var(--muted); font-size: .85rem; }
+.opt:hover .opt-teks, .opt.sel .opt-teks { color: var(--teal-dark); }
+.opt.sel .opt-huruf,
+.opt input:checked + .opt-huruf {
+  background: var(--teal); border-color: var(--teal); color: #fff;
+  box-shadow: 0 3px 10px rgba(35, 78, 82, .24);
 }
-.opt input:focus-visible + .dot { box-shadow: 0 0 0 .2rem rgba(49,151,149,.28); }
+.opt input:focus-visible + .opt-huruf { outline: 2px solid var(--teal-dark); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .opt-huruf { transition: none; } }
 @media print { .opt { break-inside: avoid; } }
+
+/* ---------- kunci jawaban PG: huruf di dalam tombol ---------- */
+/* Di editor kunci, tiap huruf pilihan (A–E) menjadi tombol tersendiri:
+   putih bergaris saat belum dipilih, terisi teal saat menjadi kunci.
+   Input asli tetap ada di DOM (disembunyikan visual) agar navigasi
+   keyboard, pembaca layar, dan pengiriman form tetap bekerja. */
+.kunci-pg { display: flex; flex-wrap: wrap; gap: .45rem; }
+.kunci-pg-input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+.kunci-pg-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 44px; width: 44px; height: 44px; padding: 0;
+  border: 1px solid #CBD5E0; border-radius: 11px;
+  background: #fff; color: #2D3748;
+  font-size: 1.02rem; font-weight: 800; line-height: 1; letter-spacing: .02em;
+  cursor: pointer; user-select: none;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.kunci-pg-btn:hover { border-color: var(--teal); background: var(--teal-soft); color: var(--teal-dark); }
+.kunci-pg-input:checked + .kunci-pg-btn {
+  background: var(--teal); border-color: var(--teal); color: #fff;
+  box-shadow: 0 3px 10px rgba(35, 78, 82, .24);
+}
+.kunci-pg-input:focus-visible + .kunci-pg-btn { outline: 2px solid var(--teal-dark); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .kunci-pg-btn { transition: none; } }
 
 .q-textarea { width: 100%; min-height: 130px; border: 1px solid #CBD5E0; border-radius: 9px; padding: .7rem; font-size: .92rem; resize: vertical; }
 .q-textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 .2rem rgba(49,151,149,.16); }

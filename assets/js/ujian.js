@@ -73,10 +73,11 @@
       html += '<div class="opt-row" role="radiogroup" aria-label="Pilihan jawaban nomor ' + q.nomor + '">';
       (q.huruf || ['A', 'B', 'C', 'D']).forEach(function (h, i) {
         var teks = teksOpsi(h, q.opsi && q.opsi[i] ? q.opsi[i] : '');
+        // Huruf pilihan tampil di dalam tombol; input asli disembunyikan visual
+        // agar navigasi keyboard dan pembaca layar tetap bekerja.
         html += '<label class="opt' + (state.answers[q.nomor] === h ? ' sel' : '') + '">' +
           '<input type="radio" name="q' + q.nomor + '" value="' + h + '"' + (state.answers[q.nomor] === h ? ' checked' : '') + '>' +
-          '<span class="dot" aria-hidden="true"></span>' +
-          '<span class="huruf">' + h + '</span>' +
+          '<span class="opt-huruf">' + h + '</span>' +
           (teks !== '' ? '<span class="opt-teks">' + esc(teks) + '</span>' : '') +
           '</label>';
       });
@@ -86,10 +87,11 @@
       html += '<div class="opt-row" role="group" aria-label="Pilihan jawaban nomor ' + q.nomor + '">';
       (q.huruf || ['A', 'B', 'C', 'D']).forEach(function (h, i) {
         var teks = teksOpsi(h, q.opsi && q.opsi[i] ? q.opsi[i] : '');
-        html += '<label class="opt' + (dipilih.indexOf(h) >= 0 ? ' sel' : '') + '">' +
+        // Sama seperti PG, tetapi bentuk tombol sedikit lebih kotak agar
+        // terasa sebagai pilihan ganda (boleh lebih dari satu).
+        html += '<label class="opt opt-kompleks' + (dipilih.indexOf(h) >= 0 ? ' sel' : '') + '">' +
           '<input type="checkbox" name="q' + q.nomor + '" value="' + h + '"' + (dipilih.indexOf(h) >= 0 ? ' checked' : '') + '>' +
-          '<span class="dot" aria-hidden="true"></span>' +
-          '<span class="huruf">' + h + '</span>' +
+          '<span class="opt-huruf">' + h + '</span>' +
           (teks !== '' ? '<span class="opt-teks">' + esc(teks) + '</span>' : '') +
           '</label>';
       });

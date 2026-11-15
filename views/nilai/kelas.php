@@ -71,7 +71,7 @@ $kkm = (float) setting('kkm', '75');
                 $nilai = $matriks[(int) $s['id']][(int) $u['id']] ?? null;
                 $cls = '';
                 if ($nilai !== null) {
-                    $cls = (float) $nilai >= $kkm ? 'text-success fw-semibold' : 'text-danger fw-semibold';
+                    $cls = (nilai_bulat($nilai) ?? 0.0) >= $kkm ? 'text-success fw-semibold' : 'text-danger fw-semibold';
                 }
             ?>
               <td class="text-center <?= $cls ?>"><?= $nilai !== null ? e(fmt_nilai($nilai)) : '—' ?></td>

@@ -47,7 +47,7 @@ $selesai = $r['waktu_selesai'] !== null;
           <div style="font-size:3.2rem;font-weight:800;line-height:1.1;color:var(--teal-dark)">
             <?= $r['nilai_akhir'] !== null ? e(fmt_nilai($r['nilai_akhir'])) : '—' ?>
           </div>
-          <?php if ($r['nilai_akhir'] !== null && (float) $r['nilai_akhir'] >= (float) $sekolah['kkm']): ?>
+          <?php if ($r['nilai_akhir'] !== null && (nilai_bulat($r['nilai_akhir']) ?? 0.0) >= (float) $sekolah['kkm']): ?>
             <span class="badge text-bg-success">Tuntas</span>
           <?php elseif ($r['nilai_akhir'] !== null): ?>
             <span class="badge text-bg-danger">Belum tuntas</span>

@@ -134,10 +134,32 @@ function fmt_tanggal(?string $dt, bool $withTime = true): string
     return date($withTime ? 'd/m/Y H:i' : 'd/m/Y', $ts);
 }
 
-function fmt_nilai(mixed $n, int $dec = 2): string
+/**
+ * Nilai sebagai bilangan bulat dengan pembulatan normal (0,5 ke atas).
+ * Contoh: 80,37 menjadi 80; 80,68 menjadi 81.
+ * round() kecil dulu supaya galat float (mis. 80,4999999999) tidak
+ * dibulatkan ke arah yang salah.
+ */
+function nilai_bulat(mixed $n): ?float
+{
+    if ($n === null || $n === '') {
+        return null;
+    }
+    return (float) round(round((float) $n, 6));
+}
+
+/**
+ * Format nilai tampilan: bulat tanpa koma, pembulatan normal.
+ * $dec eksplisit hanya dipakai untuk persentase/bobot yang memang
+ * butuh desimal (mis. bobot 33,33%).
+ */
+function fmt_nilai(mixed $n, ?int $dec = null): string
 {
     if ($n === null || $n === '') {
         return '—';
+    }
+    if ($dec === null) {
+        return number_format((float) nilai_bulat($n), 0, ',', '.');
     }
     return number_format((float) $n, $dec, ',', '.');
 }
@@ -1286,7 +1308,7 @@ function komposisi_validasi(array $rows): array
             $blok[$i]['bobot'] = $bobotRata;
         }
     } elseif (abs($totalBobot - 100) > 0.01) {
-        $errors[] = 'Total bobot seluruh jenis soal harus 100% (saat ini ' . fmt_nilai($totalBobot) . '%).';
+        $errors[] = 'Total bobot seluruh jenis soal harus 100% (saat ini ' . fmt_nilai($totalBobot, 2) . '%).';
     }
 
     return ['blok' => $blok, 'errors' => array_values(array_unique($errors))];
